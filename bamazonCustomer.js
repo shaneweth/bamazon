@@ -14,7 +14,6 @@ con.connect(function (err) {
     if (err) throw err;
     console.log("connected as " + con.threadId);
     displayAll();
-    startPrompt();
 });
 
 function displayAll() {
@@ -22,23 +21,26 @@ function displayAll() {
         if (err) throw err;
         console.log(res);
     });
-
-
+    buy();
 }
 
-function startPrompt() {
+function buy() {
     inquirer
-        .prompt({
-            name: "buy",
-            type: "list",
-            message: "Which Item would you like to purchase?",
-            choices: function (err, res) {
-                if (err) throw err;
-                var productArr = [];
-                for (var i = 0; i < res.length; i++) {
-                    productArr.push(res[0].product_name);
-                }
-                return productArr;
-            }
+    .prompt({
+        name: "buy_item",
+        type: "input",
+        message: "What would you like to buy today, consumer?"
+    })
+    .then(function(answer) {
+        console.log(answer.buy_item);
+        con.query("SELECT * FROM products WHERE ?", { item_id: answer.buy_item }, function(err, res) {
+            console.log(res);
+            con.end();
         })
+    })
 }
+
+
+
+    
+
