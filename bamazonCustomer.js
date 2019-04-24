@@ -28,7 +28,6 @@ function displayAll() {
                 "Current QTY: " + res[j].stock_qty + "\n"
             )}
     })
-    con.end();
 }
 
 function buy() {
@@ -39,7 +38,7 @@ function buy() {
             message: "What would you like to buy today, consumer?"
         })
         .then(function (answer) {
-            console.log(answer.buy_item);
+            
             con.query("SELECT * FROM products WHERE ?", { item_id: answer.buy_item }, function (err, res) {
                 for (var i = 0; i < res.length; i++) {
                     console.log(
