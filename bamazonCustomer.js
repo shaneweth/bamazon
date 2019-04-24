@@ -16,7 +16,7 @@ con.connect(function(err) {
     displayAll();
 });
 
-displayAll() {
+function displayAll() {
     con.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         console.log(res);
