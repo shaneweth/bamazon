@@ -9,25 +9,26 @@ var con = mysql.createConnection({
     database: "bamazon"
 });
 
-
 con.connect(function (err) {
     if (err) throw err;
     console.log("connected as " + con.threadId);
     displayAll();
+    buy();
 });
 
 function displayAll() {
     con.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
-        console.log(
-            res.item_id +
-            res.product_name +
-            res.department_name +
-            res.price +
-            res.stock_qty
-        )
-    });
-    buy();
+        for (var j = 0; j < res.length; j++) {
+            console.log(
+                "Item Number: " + res[j].item_id + "\n" +
+                "Product: " + res[j].product_name + "\n" +
+                "Department: " + res[j].department_name + "\n" +
+                "Price: " + res[j].price + "\n" +
+                "Current QTY: " + res[j].stock_qty + "\n"
+            )}
+    })
+    con.end();
 }
 
 function buy() {
@@ -40,14 +41,15 @@ function buy() {
         .then(function (answer) {
             console.log(answer.buy_item);
             con.query("SELECT * FROM products WHERE ?", { item_id: answer.buy_item }, function (err, res) {
-                console.log(
-                "Item Number: " +   res[0].item_id         + "\n" +
-                "Product: "     +   res[0].product_name    + "\n" +
-                "Department: "  +   res[0].department_name + "\n" +
-                "Price: "       +   res[0].price           + "\n" +
-                "Current QTY: " +   res[0].stock_qty       + "\n" 
-                );
-                con.end();
+                for (var i = 0; i < res.length; i++) {
+                    console.log(
+                        "Item Number: " + res[i].item_id + "\n" +
+                        "Product: " + res[i].product_name + "\n" +
+                        "Department: " + res[i].department_name + "\n" +
+                        "Price: " + res[i].price + "\n" +
+                        "Current QTY: " + res[i].stock_qty + "\n"
+                    )
+                };
             })
         })
 }
