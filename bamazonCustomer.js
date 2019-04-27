@@ -11,9 +11,10 @@ var con = mysql.createConnection({
 
 con.connect(function (err) {
     if (err) throw err;
-    console.log("connected as " + con.threadId);
-});
+    console.log("connected as " + con.threadId + "\n");
+    displayAll();
 
+});
 
 
 function displayAll() {
@@ -30,14 +31,13 @@ function displayAll() {
                 "Product: " + res[j].product_name + "\n" +
                 "Department: " + res[j].department_name + "\n" +
                 "Price: " + res[j].price + "\n" +
-                "Current QTY: " + res[j].stock_qty + "\n" +
+                // "Current QTY: " + res[j].stock_qty + "\n" +
                 "\n--$$$$$$$$$$$$$$$$$$$$$$$$$$$--\n"
             )
         }
     })
     buy();    
 }
-displayAll();
 
 function buy() {
     inquirer
@@ -53,44 +53,42 @@ function buy() {
         })
         .then(function (answer) {
 
-            let item = answer.buy_item;
-            let qty = answer.stock_qty;
-            let price = answer.price;
+            let item    = answer.buy_item;
+            let qty     = answer.stock_qty;
+            let price   = answer.price;
 
-            // var queryStr = "SELECT * products WHERE ?";
 
-            con.query( " SELECT * products WHERE ? ", {
-                item_id: item
-            }, function (err, res) {
-                if (err) throw err;
+            // con.query( " SELECT * products WHERE ? ", {
+            //     item_id: item
+            // }, function (err, res) {
+            //     if (err) throw err;
 
-                if (res.length === 0) {
-                    console.log("ERROR: I'm afraid this doesn't make any sense. Pick something else, please.");
-                    // displayAll();
+            //     if (res.length === 0) {
+            //         console.log("ERROR: I'm afraid this doesn't make any sense. Pick something else, please.");
+            //         // displayAll();
 
-                } else {
-                    const productObj = res[0];
+            //     } else {
+            //         const productObj = res[0];
 
-                    if (qty <= productObj.stock_qty) {
-                        console.log("Looks like you're in luck! We're placing this order right now...");
+            //         if (qty <= productObj.stock_qty) {
+            //             console.log("Looks like you're in luck! We're placing this order right now...");
 
-                        const updateQty = "UPDATE products SET stock_qty = " + (productObj.stock_qty - qty) + " WHERE item_id = " + item;
+            //             const updateQty = "UPDATE products SET stock_qty = " + (productObj.stock_qty - qty) + " WHERE item_id = " + item;
 
-                        con.query(updateQty, function(err, res) {
-                            if (err) throw err;
+            //             con.query(updateQty, function(err, res) {
+            //                 if (err) throw err;
 
-                            console.log("Your order has been placed... Your total is $" + price * qty);
-                            con.end();
-                        })
+            //                 console.log("Your order has been placed... Your total is $" + price * qty);
+            //                 con.end();
+            //             })
 
-                    }
+            //         }
 
                     
-                        // tell the database to reduce the res[i].stock_qty by a specific amount
 
-                    };
-                }
-            )
+            //         };
+            //     }
+            // )
 
         })
 }
