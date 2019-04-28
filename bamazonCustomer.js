@@ -54,34 +54,32 @@ function buy() {
             }
         ])
         .then(function (res) {
-            let item    = res.buy_item;
-            let qty     = res.stock_qty;
-            let price   = res.price;
-
+            let item = res.buy_item;
+            let buyQty = res.quantity;
+            let price = res.price;
 
             con.query(" SELECT * FROM products WHERE item_id = " + item,
                 function (err, res) {
                     if (err) throw err;
                     // add sanitizer for input here...
 
-                     else {
+                    else {
                         const productObj = res[0];
-                        console.log(productObj.stock_qty);
+                        let qty = productObj.stock_qty;
+                        let buyPrice = productObj.price;
 
-                        if (qty <= productObj.stock_qty) {
-                            console.log("Looks like you're in luck! We're placing this order right now...");
+                        console.log("Looks like you're in luck! We're placing this order right now...");
 
-                            const updateQty = "UPDATE products SET stock_qty = " + (productObj.stock_qty - qty) + " WHERE item_id = " + item;
+                        const updateQty = "UPDATE products SET stock_qty = " + (qty - buyQty) + " WHERE item_id = " + item;
 
-                            con.query(updateQty, function (err, res) {
-                                if (err) throw err;
+                        con.query(updateQty, function (err, res) {
+                            if (err) throw err;
 
-                                console.log("Your order has been placed... Your total is $" + price * qty);
-                                con.end();
-                            })
+                            console.log("Your order has been placed... Your total is $" + buyPrice * buyQty);
+                            con.end();
+                        })
 
-                        }
-                    };
-                })
+                    }
+                });
         })
 }
