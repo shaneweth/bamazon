@@ -20,7 +20,7 @@ con.connect(function (err) {
 function displayAll() {
     con.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
-        
+
         console.log(" ");
         console.log("Hello there, fine consumer! Here's a fine list of our fine products: \n");
         console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
@@ -30,65 +30,58 @@ function displayAll() {
                 "Item Number: " + res[j].item_id + "\n" +
                 "Product: " + res[j].product_name + "\n" +
                 "Department: " + res[j].department_name + "\n" +
-                "Price: " + res[j].price + "\n" +
+                "Price: $" + res[j].price + "\n" +
                 // "Current QTY: " + res[j].stock_qty + "\n" +
                 "\n--$$$$$$$$$$$$$$$$$$$$$$$$$$$--\n"
             )
         }
+        buy();
     })
-    buy();    
 }
 
 function buy() {
     inquirer
-        .prompt({
-            name: "buy_item",
-            type: "input",
-            message: "What would you like to buy today, consumer?"
-        }, 
-        {
-            name: "quantity",
-            type: "input",
-            message: "How many of these fine items would you like?",
-        })
-        .then(function (answer) {
+        .prompt([
+            {
+                name: "buy_item",
+                type: "input",
+                message: "Which of these fine items would you like to buy today, fine consumer?"
+            },
+            {
+                name: "quantity",
+                type: "input",
+                message: "How many of these fine items would you like?",
+            }
+        ])
+        .then(function (res) {
+            let item    = res.buy_item;
+            let qty     = res.stock_qty;
+            let price   = res.price;
 
-            let item    = answer.buy_item;
-            let qty     = answer.stock_qty;
-            let price   = answer.price;
 
+            con.query(" SELECT * FROM products WHERE item_id = " + item,
+                function (err, res) {
+                    if (err) throw err;
+                    // add sanitizer for input here...
 
-            // con.query( " SELECT * products WHERE ? ", {
-            //     item_id: item
-            // }, function (err, res) {
-            //     if (err) throw err;
+                     else {
+                        const productObj = res[0];
+                        console.log(productObj.stock_qty);
 
-            //     if (res.length === 0) {
-            //         console.log("ERROR: I'm afraid this doesn't make any sense. Pick something else, please.");
-            //         // displayAll();
+                        if (qty <= productObj.stock_qty) {
+                            console.log("Looks like you're in luck! We're placing this order right now...");
 
-            //     } else {
-            //         const productObj = res[0];
+                            const updateQty = "UPDATE products SET stock_qty = " + (productObj.stock_qty - qty) + " WHERE item_id = " + item;
 
-            //         if (qty <= productObj.stock_qty) {
-            //             console.log("Looks like you're in luck! We're placing this order right now...");
+                            con.query(updateQty, function (err, res) {
+                                if (err) throw err;
 
-            //             const updateQty = "UPDATE products SET stock_qty = " + (productObj.stock_qty - qty) + " WHERE item_id = " + item;
+                                console.log("Your order has been placed... Your total is $" + price * qty);
+                                con.end();
+                            })
 
-            //             con.query(updateQty, function(err, res) {
-            //                 if (err) throw err;
-
-            //                 console.log("Your order has been placed... Your total is $" + price * qty);
-            //                 con.end();
-            //             })
-
-            //         }
-
-                    
-
-            //         };
-            //     }
-            // )
-
+                        }
+                    };
+                })
         })
 }
