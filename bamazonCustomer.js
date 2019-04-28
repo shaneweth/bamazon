@@ -76,6 +76,7 @@ function buy() {
                             if (err) throw err;
 
                             console.log("Your order has been placed... Your total is $" + buyPrice * buyQty);
+                            console.log(qty);
                             con.end();
                         })
 
