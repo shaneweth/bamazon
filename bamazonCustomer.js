@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const cTable = require("console.table")
 
 var con = mysql.createConnection({
     host: "localhost",
@@ -63,24 +64,32 @@ function buy() {
                     if (err) throw err;
                     // add sanitizer for input here...
 
+
                     else {
                         const productObj = res[0];
                         let qty = productObj.stock_qty;
                         let buyPrice = productObj.price;
 
-                        console.log("Looks like you're in luck! We're placing this order right now...");
+                        if (qty <= 0) {
 
-                        const updateQty = "UPDATE products SET stock_qty = " + (qty - buyQty) + " WHERE item_id = " + item;
+                            console.log("Apologies... We're all out of this at the moment... \n" + "Would you like to try something else?")
+                            buy();
 
-                        con.query(updateQty, function (err, res) {
-                            if (err) throw err;
+                        } else {
+                            console.log(buyQty);
+                            console.log("Looks like you're in luck! We're placing this order right now...");
 
-                            console.log("Your order has been placed... Your total is $" + buyPrice * buyQty);
-                            console.log(qty);
-                            con.end();
-                        })
+                            const updateQty = "UPDATE products SET stock_qty = " + (qty - buyQty) + " WHERE item_id = " + item;
 
-                    }
-                });
+                            con.query(updateQty, function (err, res) {
+                                if (err) throw err;
+
+                                console.log("Your order has been placed... Your total is $" + buyPrice * buyQty);
+                                console.log(qty);
+                                con.end();
+                            })
+                        }
+                    };
+                })
         })
 }
